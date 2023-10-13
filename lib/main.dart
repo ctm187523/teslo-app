@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:teslo_shop/config/config.dart';
 import 'package:teslo_shop/config/router/app_router.dart';
 
+//main
 void main() {
   runApp(const MainApp());
 }
