@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:teslo_shop/config/config.dart';
 import 'package:teslo_shop/config/router/app_router.dart';
 
 //main
 void main() {
-  runApp(const MainApp());
+  runApp(
+    //ponemos el Provider Riverpood en el lugar mas alto de la aplicacion para que todos puedan usarlo
+    const ProviderScope(child: MainApp())
+  ); 
 }
 
 class MainApp extends StatelessWidget {

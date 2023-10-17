@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:teslo_shop/features/auth/presentation/providers/login_form_provider.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
 
@@ -15,6 +17,7 @@ class LoginScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
+        //usamos la clase creada GeometricalBackground,ver clase
         body: GeometricalBackground( 
           child: SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
@@ -48,11 +51,15 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
-class _LoginForm extends StatelessWidget {
+//lo cambiamos a ConsumerWidget para manjar el estado de Riverpood
+class _LoginForm extends ConsumerWidget {
   const _LoginForm();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+
+    //usamos el estado de Riverpood
+    final loginForm = ref.watch(loginFormProvider);
 
     final textStyles = Theme.of(context).textTheme;
 
@@ -64,15 +71,23 @@ class _LoginForm extends StatelessWidget {
           Text('Login', style: textStyles.titleLarge ),
           const SizedBox( height: 90 ),
 
-          const CustomTextFormField(
+          CustomTextFormField(
             label: 'Correo',
             keyboardType: TextInputType.emailAddress,
+            //usamos el estado de Riverpood
+            onChanged: ref.read(loginFormProvider.notifier).onEmailChange,
+            //el error sale solo cuando esta posteado(hemos pulsado el boton de ingresar)
+            errorMessage: loginForm.isFormPosted ? loginForm.email.errorMessage : null,
           ),
           const SizedBox( height: 30 ),
 
-          const CustomTextFormField(
+           CustomTextFormField(
             label: 'Contraseña',
             obscureText: true,
+            //usamos el estado de Riverpood
+            onChanged: ref.read(loginFormProvider.notifier).onPasswordChange,
+              //el error sale solo cuando esta posteado(hemos pulsado el boton de ingresar)
+            errorMessage: loginForm.isFormPosted ?  loginForm.password.errorMessage : null,
           ),
     
           const SizedBox( height: 30 ),
@@ -84,7 +99,7 @@ class _LoginForm extends StatelessWidget {
               text: 'Ingresar',
               buttonColor: Colors.black,
               onPressed: (){
-
+                ref.read(loginFormProvider.notifier).onFormSubmit();
               },
             )
           ),

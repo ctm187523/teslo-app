@@ -2,6 +2,8 @@ import 'dart:math' show pi;
 import 'package:flutter/material.dart';
 
 
+//usamos customPainter ver video --> https://www.youtube.com/watch?v=GpxkQegspCk
+//ver linea 141
 class GeometricalBackground extends StatelessWidget {
   final Widget child;
   const GeometricalBackground({super.key, required this.child});
@@ -144,6 +146,7 @@ class _RightTriangle extends StatelessWidget {
   }
 }
 
+//clase que hereda de CustomPainter ver video --> https://www.youtube.com/watch?v=GpxkQegspCk
 class _RightTrianglePainter extends CustomPainter {
 
   @override
