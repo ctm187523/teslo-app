@@ -1,7 +1,7 @@
 
 //hemos instalado Riverpood
 
-//!-State del provider
+//State del provider
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -94,7 +94,7 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
 
   }
 
-  //metodo privado, para que al hacer el submut(tocar boton ingresar)
+  //metodo privado, para que al hacer el submit(tocar boton ingresar)
   //se manoseen todos los campos ya que en su estado inicial son pure
   //y de esta manera al ser manoseados vemos sus posibles errores
   _touchEveryField(){
@@ -117,7 +117,7 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
 
 
 // creamos el provider StateNotifierProvider, usamos el snippet stateNotifierProvider
-//usmaos el modificador de autoDispose porque al salir de la pantalla del login y volver a entrar
+//usamos el modificador de autoDispose porque al salir de la pantalla del login y volver a entrar
 //limpie la informacion podria aparecer la contraseña al volver al login
 final loginFormProvider = StateNotifierProvider.autoDispose<LoginFormNotifier, LoginFormState>((ref) {
   
