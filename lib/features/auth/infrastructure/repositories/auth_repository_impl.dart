@@ -9,10 +9,10 @@ class AuthRepositoryImpl extends AuthRepository {
   final AuthDataSource dataSource;
 
   //constructor
-  AuthRepositoryImpl(
+  AuthRepositoryImpl({
     //es opcional si lo obtengo lo uso si no usamos la instancia de esta clase AuthDatasourceImp()
     AuthDataSource? dataSource
-  ): dataSource = dataSource ?? AuthDatasourceImp();
+  }): dataSource = dataSource ?? AuthDatasourceImp();
 
   @override
   Future<User> checkAuthStatus(String token) {
