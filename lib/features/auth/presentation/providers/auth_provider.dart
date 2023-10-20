@@ -54,7 +54,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   ): super( AuthState());
   
   //metodos
-  void loginUser(String email, String password) async {
+  Future<void> loginUser(String email, String password) async {
 
       //creamos un retardo para que se pueda ver un loading, etc
       await Future.delayed(const Duration(microseconds: 500));
@@ -71,7 +71,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
          //llamaos al metodo creado abajo logOut
         logOut( 'Credenciales no son correctas');
         
-      }catch (e) {
+      } on ConnectionTimeout {
+        logOut('Timeout');
+      }
+    
+      
+      catch (e) {
         
         //llamamos al metodo creado abajo logOut, tenemos un error no controlado
         logOut( 'Error no controlado');

@@ -5,6 +5,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
+import 'package:teslo_shop/features/auth/presentation/providers/auth_provider.dart';
 
 import '../../../shared/shared.dart';
 
@@ -60,7 +61,16 @@ class LoginFormState {
 //implementamos un notifier, usamos el snippet stateNotifier
 class LoginFormNotifier extends StateNotifier<LoginFormState> {
   
-  LoginFormNotifier(): super( LoginFormState()); //con LoginFormState creamos el estado inicial siempre es sincrono
+  //propiedad que recibe una funcion, que hara referencia al loginUser del provider auth_provider
+  //es recibida por el metodo creado al final loginFormProvider
+  final Function(String,String) loginUserCallback;
+
+  //constructor
+  LoginFormNotifier(
+    {
+      required this.loginUserCallback,
+    }
+  ): super( LoginFormState()); //con LoginFormState creamos el estado inicial siempre es sincrono
   
   //metodos
   //cambiamos el email con validate lo validamos
@@ -83,14 +93,16 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
   }
 
   //al tocar el boton de Ingresar todos los campos se verifican, hallan sido como tocados
-  onFormSubmit() {
+  onFormSubmit() async{
 
     //llamamos al metodo creado abajo
     _touchEveryField();
 
     if( !state.isValid) return;
 
-    print(state);
+    //llamamos a la funcion recibida por parametro(loginUser de auth_provider)
+    //para que una vez echas las validaciones haga la peticion http
+    await loginUserCallback(state.email.value, state.password.value);
 
   }
 
@@ -121,6 +133,11 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
 //limpie la informacion podria aparecer la contraseña al volver al login
 final loginFormProvider = StateNotifierProvider.autoDispose<LoginFormNotifier, LoginFormState>((ref) {
   
-  //creamos la instancia del loginFormNotifier
-  return LoginFormNotifier();
+  //hacemos una referencia al provider authProvider y su metodo loginUser
+  final loginUserCallback = ref.watch(authProvider.notifier).loginUser;
+
+  //creamos la instancia del loginFormNotifier(clase creada arriba) y le enviamos el parametro requerido
+  return LoginFormNotifier(
+    loginUserCallback: loginUserCallback
+  );
 });

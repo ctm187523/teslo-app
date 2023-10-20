@@ -9,7 +9,7 @@ class Environment {
 
   //iniciomos el environment codigo sacado de --> https://pub.dev/packages/flutter_dotenv
   static initEmvironment() async{
-    await dotenv.load(fileName: ".env");
+    await dotenv.load(fileName: '.env');
   }
 
   static String apiUrl = dotenv.env['API_URL'] ?? 'No esta configurado el API_URL';
