@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:teslo_shop/features/auth/presentation/providers/auth_provider.dart';
 import 'package:teslo_shop/features/auth/presentation/providers/login_form_provider.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
@@ -55,11 +56,33 @@ class LoginScreen extends StatelessWidget {
 class _LoginForm extends ConsumerWidget {
   const _LoginForm();
 
+  //metodo para mostar los errores en un snackBar, ver la creacion de snackbar
+  //en videos anteriores
+  void showSnackbar(BuildContext context, String message ){
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message))
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
 
     //usamos el estado de Riverpood
     final loginForm = ref.watch(loginFormProvider);
+
+    //usamos un listen al provider authProvider para controlar el estado y en caso
+    //de que haya un error podamos mostrarlo, previous es el valor previous es el estado anterior
+    //y next el estado siguiente, al estado que nos estamos moviendo, el previous puede ser opcional
+    ref.listen(authProvider, (previous, next) { 
+
+      //si no hay error salimos de la funcion
+      if( next.errorMessage.isEmpty) return;
+
+      //si hay error usamos el metodo creado arriba showSnackbar para mostrar el error
+      showSnackbar(context ,next.errorMessage);
+    });
 
     final textStyles = Theme.of(context).textTheme;
 

@@ -10,10 +10,9 @@ class CustomError implements Exception {
 
   //propiedades
   final String message;
-  final int errorCode;
+  //final bool loggedRequired; //para hacer un log un registro
+ // final int errorCode;  //para registrar el codigo del error si tuvieramos un log
 
   //constructor
-  CustomError(this.message, this.errorCode);
-
-
+  CustomError(this.message);
 }

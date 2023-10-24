@@ -41,11 +41,15 @@ class AuthDatasourceImp extends AuthDataSource {
       //controlamos un tipo de error de dio
       } on DioException catch (e) {
 
-          if(e.response?.statusCode == 401) throw WrongCredentials();  //usamos la clase WrongCredentials creada en infrastructure/errors
-          if(e.type == DioExceptionType.connectionTimeout) throw ConnectionTimeout; //usamos la clase ConnectionTimeout creada en infrastructure/errors
-          throw CustomError('Something worng happend', 1); //usamos la clase CustomError creada en infrastructure/errors
+          if(e.response?.statusCode == 401) {
+            throw CustomError(e.response?.data['message'] ?? 'Credenciales incorrectas');  //si no viene usamos el string Credenciales incorrectas
+          }
+          if(e.type == DioExceptionType.connectionTimeout) {
+            throw CustomError('Revisar conexión de internet'); 
+          }
+          throw Exception(); //excepcion no controlada
       }catch (e) {
-           throw CustomError('Something worng happend', 1); //usamos la clase CustomEr creada en infrastructure/errors
+           throw Exception();  //excepcion no controlada
       }
   }
 

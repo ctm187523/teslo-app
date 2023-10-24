@@ -11,7 +11,7 @@ import '../../../shared/shared.dart';
 
 class LoginFormState {
 
-  final bool isPosting; //para cuando hacemos la transaccion y es  asincrona verificar el ususario
+  final bool isPosting; //para cuando hacemos la transaccion y es asincrona verificar el ususario
   final bool isFormPosted;//cuando el usuario toca el boton de ingresar
   final bool isValid;
   final Email email;

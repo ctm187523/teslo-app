@@ -10,7 +10,7 @@ class AuthRepositoryImpl extends AuthRepository {
 
   //constructor
   AuthRepositoryImpl({
-    //es opcional si lo obtengo lo uso si no usamos la instancia de esta clase AuthDatasourceImp()
+    //es opcional si lo obtengo lo uso si no usamos la instancia de la clase AuthDatasourceImp()
     AuthDataSource? dataSource
   }): dataSource = dataSource ?? AuthDatasourceImp();
 

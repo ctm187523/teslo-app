@@ -7,9 +7,9 @@ import '../../domain/domain.dart';
 enum AuthStatus { checking, authenticated, notAuthenticated}
 
 //creamos una instancia de AuthRepositoryImpl de auth/infrastructure/repositories
-//lo usamos al final del todo en la creacion del provider, es un argumeto que exige
-//para hacer una isntancia a la clase creada abajo AuthNotifier
-//para poder manejar el storage
+//lo usamos al final del todo en la creacion del provider, es un argumento que exige
+//para hacer una instancia a la clase creada abajo AuthNotifier
+//para poder manejar el storage, esta instancia la pueden usar todas las clases del archivo
 final authRepository = AuthRepositoryImpl();
 
 
@@ -64,22 +64,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
         final user = await authRepository.login(email, password);
         _setLoggedUser(user);
 
-        //llamamos a la clase creda por nosotros WrongCrdentials de auth/infrastructure/errors
-        //por si falla el trya
-      } on WrongCredentials{
+        //llamamos a la clase creda por nosotros CustomError de auth/infrastructure/errors
+        //por si falla el try y implementada en auth_datasource_impl linea 45
+      } on CustomError catch (e){
 
          //llamaos al metodo creado abajo logOut
-        logOut( 'Credenciales no son correctas');
-        
-      } on ConnectionTimeout {
-        logOut('Timeout');
-      }
-    
-      
-      catch (e) {
+        logOut( e.message);
+   
+      }catch (e) {
         
         //llamamos al metodo creado abajo logOut, tenemos un error no controlado
-        logOut( 'Error no controlado');
+        logOut( 'Errror no controlado');
       }
   }
 
