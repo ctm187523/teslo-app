@@ -54,9 +54,33 @@ class AuthDatasourceImp extends AuthDataSource {
   }
 
   @override
-  Future<User> register(String email, String password, String fullName) {
-    // TODO: implement register
-    throw UnimplementedError();
+  Future<User> register(String email, String password, String fullName) async{
+     try {
+        final response = await dio.post('/auth/register',
+            data: {
+                'email':email,
+                'password':password,
+                'fullName':fullName,
+        });
+
+        //usamos la clase creada por nosotros en infrastructure/mappers para mapear
+        //la respuesta en Json y pasarla a la entidad User
+        final user = UserMapper.userJsonToEntity(response.data);
+        return user;
+      
+      //controlamos un tipo de error de dio
+      } on DioException catch (e) {
+
+          if(e.response?.statusCode == 401) {
+            throw CustomError(e.response?.data['message'] ?? 'Credenciales incorrectas');  //si no viene usamos el string Credenciales incorrectas
+          }
+          if(e.type == DioExceptionType.connectionTimeout) {
+            throw CustomError('Revisar conexión de internet'); 
+          }
+          throw Exception(); //excepcion no controlada
+      }catch (e) {
+           throw Exception();  //excepcion no controlada
+      }
   }
 
 }

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:teslo_shop/features/auth/presentation/providers/register_form_provider.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
+
+import '../providers/auth_provider.dart';
 
 
 class RegisterScreen extends StatelessWidget {
@@ -60,11 +64,36 @@ class RegisterScreen extends StatelessWidget {
   }
 }
 
-class _RegisterForm extends StatelessWidget {
+class _RegisterForm extends ConsumerWidget {
   const _RegisterForm();
 
+
+  //metodo para mostar los errores en un snackBar, ver la creacion de snackbar
+  //en videos anteriores
+  void showSnackbar(BuildContext context, String message ){
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message))
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+
+    final registerForm = ref.watch(registerFormProvider);
+
+     //usamos un listen al provider authProvider para controlar el estado y en caso
+    //de que haya un error podamos mostrarlo, previous es el valor previous es el estado anterior
+    //y next el estado siguiente, al estado que nos estamos moviendo, el previous puede ser opcional
+    ref.listen(authProvider, (previous, next) { 
+
+      //si no hay error salimos de la funcion
+      if( next.errorMessage.isEmpty) return;
+
+      //si hay error usamos el metodo creado arriba showSnackbar para mostrar el error
+      showSnackbar(context ,next.errorMessage);
+    });
 
     final textStyles = Theme.of(context).textTheme;
 
@@ -76,28 +105,36 @@ class _RegisterForm extends StatelessWidget {
           Text('Nueva cuenta', style: textStyles.titleMedium ),
           const SizedBox( height: 50 ),
 
-          const CustomTextFormField(
+          CustomTextFormField(
             label: 'Nombre completo',
             keyboardType: TextInputType.emailAddress,
+            onChanged: ref.read(registerFormProvider.notifier).onFullNameChange,
+            errorMessage: registerForm.isFormPosted ? registerForm.fullName.errorMessage : null,
           ),
           const SizedBox( height: 30 ),
 
-          const CustomTextFormField(
+          CustomTextFormField(
             label: 'Correo',
             keyboardType: TextInputType.emailAddress,
+            onChanged: ref.read(registerFormProvider.notifier).onEmailChange,
+            errorMessage: registerForm.isFormPosted ? registerForm.email.errorMessage : null,
           ),
           const SizedBox( height: 30 ),
 
-          const CustomTextFormField(
+          CustomTextFormField(
             label: 'Contraseña',
             obscureText: true,
+            onChanged: ref.read(registerFormProvider.notifier).onPasswordChange,
+            errorMessage: registerForm.isFormPosted ? registerForm.password.errorMessage : null,
           ),
     
           const SizedBox( height: 30 ),
 
-          const CustomTextFormField(
+          CustomTextFormField(
             label: 'Repita la contraseña',
             obscureText: true,
+            onChanged: ref.read(registerFormProvider.notifier).onConfirmedPassWord,
+            errorMessage: registerForm.isFormPosted ? registerForm.confirmedPassword.errorMessage : null,
           ),
     
           const SizedBox( height: 30 ),
@@ -109,7 +146,7 @@ class _RegisterForm extends StatelessWidget {
               text: 'Crear',
               buttonColor: Colors.black,
               onPressed: (){
-
+                ref.read(registerFormProvider.notifier).onFormSubmit();
               },
             )
           ),
@@ -126,7 +163,6 @@ class _RegisterForm extends StatelessWidget {
                     return context.pop();
                   }
                   context.go('/login');
-                  
                 }, 
                 child: const Text('Ingresa aquí')
               )

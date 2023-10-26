@@ -56,7 +56,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   //metodos
   Future<void> loginUser(String email, String password) async {
 
-      //creamos un retardo para que se pueda ver un loading, etc
+      //creamos un retardo para que se pueda ver un loading, etc, al ser el backend local 
+      //es mas rapido que si fuera remoto, lo simulamos
       await Future.delayed(const Duration(microseconds: 500));
   
       try {
@@ -78,8 +79,29 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
   }
 
-  void registerUser(String email, String password) async {
+  void registerUser(String email, String password, String fullName) async {
 
+      //creamos un retardo para que se pueda ver un loading, etc, al ser el backend local 
+      //es mas rapido que si fuera remoto, lo simulamos
+       await Future.delayed(const Duration(microseconds: 500));
+
+        try {
+        
+        final user = await authRepository.register(email,password,fullName);
+        _setLoggedUser(user);
+
+        //llamamos a la clase creda por nosotros CustomError de auth/infrastructure/errors
+        //por si falla el try y implementada en auth_datasource_impl linea 75
+      } on CustomError catch (e){
+
+         //llamamos al metodo creado abajo logOut
+        logOut( e.message);
+   
+      }catch (e) {
+        
+        //llamamos al metodo creado abajo logOut, tenemos un error no controlado
+        logOut( 'Errror no controlado');
+      }
   }
 
   void checkAuthStatus() async {
@@ -89,7 +111,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   //metodo privado comun usado en los metodos de arriba
   void _setLoggedUser( User user){
 
-    //TODO: necesto guardar el token fisicamente en el dispositivo
+    //TODO: necesito guardar el token fisicamente en el dispositivo
     state = state.copyWith(
       user: user,
       authStatus: AuthStatus.authenticated,
