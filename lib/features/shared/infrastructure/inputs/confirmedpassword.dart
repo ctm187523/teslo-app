@@ -16,9 +16,10 @@ class ConfirmedPassword extends FormzInput<String, PasswordError> {
   );
 
   // Call super.pure to represent an unmodified form input.
+  //usamos una instancia del input password para obtener el password obtenido por el usuario
   const ConfirmedPassword.pure() : original = const Password.pure(), super.pure('');
 
-  // Call super.dirty to represent a modified form input.
+  // Call super.dirty to represent a modified form input, usamos la instancia de password(original)
   const ConfirmedPassword.dirty(String value, {required this.original }) : super.dirty(value);
 
 

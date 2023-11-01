@@ -6,7 +6,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 import 'package:teslo_shop/features/auth/presentation/providers/auth_provider.dart';
-
 import '../../../shared/shared.dart';
 
 class LoginFormState {
@@ -125,9 +124,6 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
 
 }
 
-
-
-
 // creamos el provider StateNotifierProvider, usamos el snippet stateNotifierProvider
 //usamos el modificador de autoDispose porque al salir de la pantalla del login y volver a entrar
 //limpie la informacion podria aparecer la contraseña al volver al login
@@ -136,8 +132,8 @@ final loginFormProvider = StateNotifierProvider.autoDispose<LoginFormNotifier, L
   //hacemos una referencia al provider authProvider y su metodo loginUser
   final loginUserCallback = ref.watch(authProvider.notifier).loginUser;
 
-  //creamos la instancia del loginFormNotifier(clase creada arriba) y le enviamos el parametro requerido
+  //creamos la instancia del loginFormNotifier(clase creada arriba) y le enviamos los parametros requeridos
   return LoginFormNotifier(
-    loginUserCallback: loginUserCallback
+    loginUserCallback: loginUserCallback,
   );
 });

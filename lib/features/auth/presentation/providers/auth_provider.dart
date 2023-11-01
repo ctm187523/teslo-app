@@ -1,16 +1,12 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:teslo_shop/features/auth/infrastructure/infrastructure.dart';
+import 'package:teslo_shop/features/shared/infrastructure/services/key_value_storage_service.dart';
 
+import '../../../shared/infrastructure/services/key_value_storage_service_impl.dart';
 import '../../domain/domain.dart';
 
 enum AuthStatus { checking, authenticated, notAuthenticated}
-
-//creamos una instancia de AuthRepositoryImpl de auth/infrastructure/repositories
-//lo usamos al final del todo en la creacion del provider, es un argumento que exige
-//para hacer una instancia a la clase creada abajo AuthNotifier
-//para poder manejar el storage, esta instancia la pueden usar todas las clases del archivo
-final authRepository = AuthRepositoryImpl();
 
 
 //clase para el estado, Riverpood
@@ -45,11 +41,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   //propiedad para manejar el storage fisico del dispositivo
   final AuthRepository authRepository;
+  //propiedad para poder grabar,obtener,borrar en el disco duro los tokens
+  final KeyValueStorageService keyValueStorageService;
 
   //constructor
   AuthNotifier(
     {
-      required this.authRepository
+      required this.authRepository,
+      required this.keyValueStorageService
     }
   ): super( AuthState());
   
@@ -109,17 +108,22 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   //metodo privado comun usado en los metodos de arriba
-  void _setLoggedUser( User user){
+  void _setLoggedUser( User user) async {
 
-    //TODO: necesito guardar el token fisicamente en el dispositivo
+    //guardamos el token en el disco duro usando el storage_service implementado 
+    await keyValueStorageService.setKeyValue('token', user.token);
+    
     state = state.copyWith(
       user: user,
       authStatus: AuthStatus.authenticated,
+      errorMessage: '',    //borramos el mensaje
     );
   }
 
   Future<void> logOut( [ String? errorMessage] ) async {
-    //TODO: limpiar token
+    //guardamos el token del disco duro usando el storage_service implementado 
+    await keyValueStorageService.removeValue('token');
+    
     state = state.copyWith(
       authStatus: AuthStatus.notAuthenticated,
       user: null,
@@ -130,7 +134,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
 //creamos el provider
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
+  
+  //creamos una instancia de AuthRepositoryImpl de auth/infrastructure/repositories
+  //lo usamos al final del todo en la creacion del provider, es un argumento que exige
+  //para hacer una instancia a la clase creada abajo AuthNotifier
+  //para poder manejar el storage, esta instancia la pueden usar todas las clases del archivo
+  final authRepository = AuthRepositoryImpl();
+
+  //creamos una instancia de la clase creada por nosotros KeyValueStorageServiceImpl para manejar las sharedPreferences
+  //y poder guardar en el disco duro los tokens
+  final keyValueStorageService = KeyValueStorageServiceImpl();
+  
   return AuthNotifier(
-    authRepository: authRepository
+    authRepository: authRepository,
+    keyValueStorageService: keyValueStorageService,
+
   );
 });
