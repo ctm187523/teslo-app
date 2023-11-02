@@ -50,7 +50,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       required this.authRepository,
       required this.keyValueStorageService
     }
-  ): super( AuthState());
+  ): super( AuthState()) {
+    checkAuthStatus();    //ponemos en el constructor la llamada al metodo checkAuthStatus para que se llame cuando se crea la instancia
+  }
+  
   
   //metodos
   Future<void> loginUser(String email, String password) async {
@@ -103,7 +106,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
   }
 
+  //metodo para verificar el estado del usuario
   void checkAuthStatus() async {
+
+      //verificamos si tenemos el token usando usando el storage_service implementado 
+      final token = await keyValueStorageService.getValue<String>('token'); //token es el key para obtener el token
+
+      if( token == null ) return logOut(); //nos dirigimos al metodo de abajo logOut
+
+      try {
+        //llamamos el endpoint para verificar el token
+        final user = await authRepository.checkAuthStatus(token);
+        _setLoggedUser(user);
+      }  catch (e) {
+        logOut();
+      }
 
   }
 
