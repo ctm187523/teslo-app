@@ -13,14 +13,20 @@ void main() async{
   ); 
 }
 
-class MainApp extends StatelessWidget {
+//usamos un ConsumerWidget ya que para usar goRouter lo estamos usando a traves
+//de un provider VER CLASE app_router
+class MainApp extends ConsumerWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+
+    //Usamos el provider creado en la clase app_router en lib/config/router
+    //en un build usamos un watch
+    final appRouter = ref.watch( goRouterProvider);
 
     return MaterialApp.router(
-      routerConfig: appRouter,
+      routerConfig: appRouter, //usamos la instancia al provider creado para usar el goRouter
       theme: AppTheme().getTheme(),
       debugShowCheckedModeBanner: false,
     );
