@@ -121,9 +121,11 @@ class _LoginForm extends ConsumerWidget {
             child: CustomFilledButton(
               text: 'Ingresar',
               buttonColor: Colors.black,
-              onPressed: (){
-                ref.read(loginFormProvider.notifier).onFormSubmit();
-              },
+              //ponemos la condicion de que si la propiedad es isPostin(si ya hemos pulsado el boton)
+              //retorne null y el boton queda desabilitado en caso contrario mandamos la referencia del notifier, onFormSubmit
+              onPressed: loginForm.isPosting
+                ? null
+                : ref.read( loginFormProvider.notifier).onFormSubmit
             )
           ),
 

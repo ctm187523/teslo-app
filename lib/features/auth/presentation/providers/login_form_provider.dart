@@ -99,9 +99,20 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
 
     if( !state.isValid) return;
 
+    state = state.copyWith(
+      //cambiamos a true para indicar que ya ha sido posteado el formulario 
+      //y no podamos volver a postear, para ello desabilitamos el boton de ingresar
+      isPosting: true 
+    );
+
     //llamamos a la funcion recibida por parametro(loginUser de auth_provider)
     //para que una vez echas las validaciones haga la peticion http
     await loginUserCallback(state.email.value, state.password.value);
+
+     state = state.copyWith(
+      //cambiamos el valor a false para que vuelva a poderse postear una vez echa la peticion
+      isPosting: false 
+    );
 
   }
 
