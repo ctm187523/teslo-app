@@ -5,49 +5,46 @@ import 'package:teslo_shop/features/auth/presentation/providers/auth_provider.da
 import 'package:teslo_shop/features/auth/presentation/providers/login_form_provider.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
-
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-
     final size = MediaQuery.of(context).size;
     final scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        //usamos la clase creada GeometricalBackground,ver clase
-        body: GeometricalBackground( 
-          child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox( height: 80 ),
-                // Icon Banner
-                const Icon( 
-                  Icons.production_quantity_limits_rounded, 
-                  color: Colors.white,
-                  size: 100,
-                ),
-                const SizedBox( height: 80 ),
-    
-                Container(
-                  height: size.height - 260, // 80 los dos sizebox y 100 el ícono
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: scaffoldBackgroundColor,
-                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(100)),
-                  ),
-                  child: const _LoginForm(),
-                )
-              ],
+          //usamos la clase creada GeometricalBackground,ver clase
+          body: GeometricalBackground(
+              child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 80),
+            // Icon Banner
+            const Icon(
+              Icons.production_quantity_limits_rounded,
+              color: Colors.white,
+              size: 100,
             ),
-          )
-        )
-      ),
+            const SizedBox(height: 80),
+
+            Container(
+              height: size.height - 260, // 80 los dos sizebox y 100 el ícono
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: scaffoldBackgroundColor,
+                borderRadius:
+                    const BorderRadius.only(topLeft: Radius.circular(100)),
+              ),
+              child: const _LoginForm(),
+            )
+          ],
+        ),
+      ))),
     );
   }
 }
@@ -58,30 +55,26 @@ class _LoginForm extends ConsumerWidget {
 
   //metodo para mostar los errores en un snackBar, ver la creacion de snackbar
   //en videos anteriores
-  void showSnackbar(BuildContext context, String message ){
-
+  void showSnackbar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message))
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     //usamos el estado de Riverpood
     final loginForm = ref.watch(loginFormProvider);
 
     //usamos un listen al provider authProvider para controlar el estado y en caso
     //de que haya un error podamos mostrarlo, previous es el valor previous es el estado anterior
     //y next el estado siguiente, al estado que nos estamos moviendo, el previous puede ser opcional
-    ref.listen(authProvider, (previous, next) { 
-
+    ref.listen(authProvider, (previous, next) {
       //si no hay error salimos de la funcion
-      if( next.errorMessage.isEmpty) return;
+      if (next.errorMessage.isEmpty) return;
 
       //si hay error usamos el metodo creado arriba showSnackbar para mostrar el error
-      showSnackbar(context ,next.errorMessage);
+      showSnackbar(context, next.errorMessage);
     });
 
     final textStyles = Theme.of(context).textTheme;
@@ -90,59 +83,54 @@ class _LoginForm extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 50),
       child: Column(
         children: [
-          const SizedBox( height: 50 ),
-          Text('Login', style: textStyles.titleLarge ),
-          const SizedBox( height: 90 ),
-
+          const SizedBox(height: 50),
+          Text('Login', style: textStyles.titleLarge),
+          const SizedBox(height: 90),
           CustomTextFormField(
             label: 'Correo',
             keyboardType: TextInputType.emailAddress,
             //usamos el estado de Riverpood
             onChanged: ref.read(loginFormProvider.notifier).onEmailChange,
             //el error sale solo cuando esta posteado(hemos pulsado el boton de ingresar)
-            errorMessage: loginForm.isFormPosted ? loginForm.email.errorMessage : null,
+            errorMessage:
+                loginForm.isFormPosted ? loginForm.email.errorMessage : null,
           ),
-          const SizedBox( height: 30 ),
-
-           CustomTextFormField(
+          const SizedBox(height: 30),
+          CustomTextFormField(
             label: 'Contraseña',
             obscureText: true,
             //usamos el estado de Riverpood
             onChanged: ref.read(loginFormProvider.notifier).onPasswordChange,
-              //el error sale solo cuando esta posteado(hemos pulsado el boton de ingresar)
-            errorMessage: loginForm.isFormPosted ?  loginForm.password.errorMessage : null,
+            //el onFieldSubmitted lo usamos para que al pulsar enter o dar el boton de done del teclado virtual se mande la peticion(ingresar)
+            //fijarse que usa la misma referencia al gestor de estado riverpood que abajo en el boton ingresar
+            onFieldSubmitted: (_) => ref.read(loginFormProvider.notifier).onFormSubmit(), //aqui lo invocamos ponemos parentesis en la funcion ya que recibiriamos un valor
+            //el error sale solo cuando esta posteado(hemos pulsado el boton de ingresar)
+            errorMessage:
+                loginForm.isFormPosted ? loginForm.password.errorMessage : null,
           ),
-    
-          const SizedBox( height: 30 ),
-
+          const SizedBox(height: 30),
           SizedBox(
-            width: double.infinity,
-            height: 60,
-            child: CustomFilledButton(
-              text: 'Ingresar',
-              buttonColor: Colors.black,
-              //ponemos la condicion de que si la propiedad es isPostin(si ya hemos pulsado el boton)
-              //retorne null y el boton queda desabilitado en caso contrario mandamos la referencia del notifier, onFormSubmit
-              onPressed: loginForm.isPosting
-                ? null
-                : ref.read( loginFormProvider.notifier).onFormSubmit
-            )
-          ),
-
-          const Spacer( flex: 2 ),
-
+              width: double.infinity,
+              height: 60,
+              child: CustomFilledButton(
+                  text: 'Ingresar',
+                  buttonColor: Colors.black,
+                  //ponemos la condicion de que si la propiedad es isPostin(si ya hemos pulsado el boton)
+                  //retorne null y el boton queda desabilitado en caso contrario mandamos la referencia del notifier, onFormSubmit
+                  onPressed: loginForm.isPosting
+                      ? null
+                      : ref.read(loginFormProvider.notifier).onFormSubmit)),
+          const Spacer(flex: 2),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text('¿No tienes cuenta?'),
               TextButton(
-                onPressed: ()=> context.push('/register'), 
-                child: const Text('Crea una aquí')
-              )
+                  onPressed: () => context.push('/register'),
+                  child: const Text('Crea una aquí'))
             ],
           ),
-
-          const Spacer( flex: 1),
+          const Spacer(flex: 1),
         ],
       ),
     );
