@@ -10,6 +10,6 @@ class UserMapper {
       email: json['email'],
       fullName: json['fullName'], 
       roles: List<String>.from(json['roles'].map(( role) => role)), //es una lista de roles
-      token: json['token']
+      token: json['token'] ?? '' //si no viene null
   );
 }

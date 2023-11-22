@@ -40,6 +40,13 @@ final goRouterProvider = Provider((ref) {
         path: '/',
         builder: (context, state) => const ProductsScreen(),
       ),
+
+      GoRoute(
+        path: '/product/:id',
+        builder: (context, state) => ProductScreen(
+          productId: state.params['id'] ?? 'no-id', //recibimos el id por parametro de la ruta
+        ),
+      ),
     ],
     
     //usamos el redirect para comprovar su el usuario esta autenticado
