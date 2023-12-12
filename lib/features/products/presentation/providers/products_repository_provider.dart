@@ -15,7 +15,7 @@ final  productsRepositoryProvider = Provider<ProductsRepository>((ref) {
   final accessToken = ref.watch( authProvider).user?.token ?? '';
   
   final productsRepository = ProductsRepositoryImpl(
-    ProductsDatasourceImpl(accesToken: accessToken) //usamos la varaible accesToken creada arriba
+    ProductsDatasourceImpl(accesToken: accessToken) //usamos la variable accesToken creada arriba
    );
 
   return productsRepository;

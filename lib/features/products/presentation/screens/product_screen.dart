@@ -6,6 +6,7 @@ import 'package:teslo_shop/features/products/presentation/providers/product_prov
 import 'package:teslo_shop/features/shared/shared.dart';
 
 import '../../domain/entities/product.dart';
+import '../providers/forms/product_form_provider.dart';
 
 
 class ProductScreen extends ConsumerWidget {
@@ -13,30 +14,39 @@ class ProductScreen extends ConsumerWidget {
   //propiedades
   final String productId;
 
+  //constructor
   const ProductScreen({super.key, required this.productId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     
-    final ProductState = ref.watch( productProvider(productId));
+    final productState = ref.watch( productProvider(productId));
     
     return Scaffold(
       appBar: AppBar(
-        title: Text('Editar Producto'),
+        title: const Text('Editar Producto'),
         actions: [
           IconButton(onPressed: () {
-
+           
           },
            icon: const Icon( Icons.camera_alt_outlined))
         ],    
       ),  
 
       //si ProductState es isLoading mostramos el loader en caso contrario mostramos el producto
-      body: ProductState.isLoading
+      body: productState.isLoading
         ? const FullScreenLoader() //usamos FullScreenLoader creado en widgets
-        : _ProductView(product: ProductState.product!,),
+        : _ProductView(product: productState.product!,),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+
+           if( productState.product == null) return; //si al validar no tenemos un producto salimos
+           
+           //llamamos al provider formProvider para que llame a la funcion onFormSubmit
+           ref.read(
+              productFormProvider(productState.product!).notifier
+            ).onFormSubmit();
+        },
         child: const Icon( Icons.save_as_outlined),
       )
     );
@@ -44,14 +54,19 @@ class ProductScreen extends ConsumerWidget {
 }
 
 //codigo copiado del gist de la seccion 29 -> Diseño de pantalla
-class _ProductView extends StatelessWidget {
+class _ProductView extends ConsumerWidget {
 
   final Product product;
 
+  //constructor
   const _ProductView({required this.product});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+
+    //creamos una instancia del provider productFormProvider para poder modificar
+    //los datos de los productos, le mandamos por parametro el producto
+    final productForm = ref.watch( productFormProvider(product));
 
     final textStyles = Theme.of(context).textTheme;
 
@@ -61,11 +76,12 @@ class _ProductView extends StatelessWidget {
           SizedBox(
             height: 250,
             width: 600,
-            child: _ImageGallery(images: product.images ),
+            child: _ImageGallery(images: productForm.images ), //usamos la instancia creada arriab de productFormProvider para poder actualizar los productos si le hacemos cambios
           ),
     
           const SizedBox( height: 10 ),
-          Center(child: Text( product.title, style: textStyles.titleSmall )),
+          //usamos la instancia del provider productFormProvider para acceder al valor ponemos productForm.title.value porque es una instancia al input
+          Center(child: Text( productForm.title.value, style: textStyles.titleSmall )),
           const SizedBox( height: 10 ),
           _ProductInformation( product: product ),
           
@@ -82,7 +98,9 @@ class _ProductInformation extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref ) {
 
-    
+    //creamos una instancia del provider productFormProvider para poder modificar
+    //los datos de los productos, le mandamos por parametro el producto
+    final productForm = ref.watch( productFormProvider(product));
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -94,27 +112,44 @@ class _ProductInformation extends ConsumerWidget {
           CustomProductField( //Widget creado en este mismo directorio
             isTopField: true, //en true muestra bordes redondeados
             label: 'Nombre',
-            initialValue: product.title,
+            initialValue: productForm.title.value, //nos establece el valor inicial
+            onChanged: ref.read( productFormProvider(product).notifier).onTitleChanged, //usamos read y no watch porque hace solo referencia a la funcion
+            //el onChange de arriba se podria tambien hacer de la siguiente manera, pero como mandamos la misma referencia no es necesario,lo comentamos para no hacer dos veces lo mismo
+            //onChanged: (value) =>ref.read( productFormProvider(product).notifier).onTitleChanged(value),
+            errorMessage: productForm.title.errorMessage,
           ),
           CustomProductField( 
             label: 'Slug',
-            initialValue: product.slug,
+            initialValue: productForm.slug.value,
+            onChanged: ref.read( productFormProvider(product).notifier).onSlugChanged, //usamos read y no watch porque hace solo referencia a la funcion
+            errorMessage: productForm.slug.errorMessage,
           ),
           CustomProductField( 
             isBottomField: true,
             label: 'Precio',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            initialValue: product.price.toString(),
+            initialValue: productForm.price.value.toString(),
+            onChanged: (value) 
+              => ref.read( productFormProvider(product).notifier)
+              .onPriceChanged( double.tryParse(value) ?? -1), //tratamos de convertir a double que es lo que pide la funcion onPriceCahnged si no mandamos -1 para que al ser un numero negativo muestre el error
+            errorMessage: productForm.price.errorMessage,
           ),
 
           const SizedBox(height: 15 ),
           const Text('Extras'),
 
           //usamos la clase _SizeSelector creada abajo
-          _SizeSelector(selectedSizes: product.sizes ),
+          _SizeSelector(
+            selectedSizes: productForm.sizes,
+            onSizesChanged:ref.read( productFormProvider(product).notifier).onSizeChanged,
+          ),
+          
           const SizedBox(height: 5 ),
           //usamos la clase _GenderSelector creada abajo
-          _GenderSelector( selectedGender: product.gender ),
+          _GenderSelector( 
+            selectedGender: productForm.gender,
+            onGenderChanged: ref.read( productFormProvider(product).notifier).onGenderChanged,
+          ),
           
 
           const SizedBox(height: 15 ),
@@ -122,7 +157,11 @@ class _ProductInformation extends ConsumerWidget {
             isTopField: true,
             label: 'Existencias',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            initialValue: product.stock.toString(),
+            initialValue: productForm.inStock.value.toString(),
+            onChanged: (value) => 
+            ref.read( productFormProvider(product).notifier)
+            .onStockChanged( int.tryParse(value) ?? -1), //la funcion onStochChanged pide un int, tratamos de pasarlo de string a int en caso contrario mandamos -1 para que muestre el error 
+            errorMessage: productForm.inStock.errorMessage,
           ),
 
           CustomProductField( 
@@ -130,6 +169,8 @@ class _ProductInformation extends ConsumerWidget {
             label: 'Descripción',
             keyboardType: TextInputType.multiline,
             initialValue: product.description,
+            //mandamos los cambios producidos en el provider
+            onChanged: ref.read( productFormProvider(product).notifier).onDescriptionChanged,
           ),
 
           CustomProductField( 
@@ -138,6 +179,8 @@ class _ProductInformation extends ConsumerWidget {
             label: 'Tags (Separados por coma)',
             keyboardType: TextInputType.multiline,
             initialValue: product.tags.join(', '),
+            //mandamos los cambios producidos en el provider
+            onChanged: ref.read( productFormProvider(product).notifier).onTagsChanged,
           ),
 
 
@@ -153,7 +196,17 @@ class _SizeSelector extends StatelessWidget {
   final List<String> selectedSizes;
   final List<String> sizes = const['XS','S','M','L','XL','XXL','XXXL'];
 
-  const _SizeSelector({required this.selectedSizes});
+  //funcion que recebimos en el constructor cuando las talles cambien
+  //y se vean reflejadas en los botones al seleccionar una talla se queda marcada
+  //cojemos la informacion del FormProvider
+  final void Function(List<String> selectedSizes) onSizesChanged;
+  
+  
+  //constructor
+  const _SizeSelector({
+    required this.selectedSizes,
+    required this.onSizesChanged,
+  });
 
 
   @override
@@ -169,7 +222,9 @@ class _SizeSelector extends StatelessWidget {
       }).toList(), 
       selected: Set.from( selectedSizes ),
       onSelectionChanged: (newSelection) {
-        print(newSelection);
+        //usamos List.from porque newSlection no es un listado de Stirngs es un set por tanto lo convertimos a un listado de String
+        //Un set es una colección no ordenada de elementos únicos.(ver guia de atajos Dart)
+        onSizesChanged( List.from(newSelection)); //usamos la funcion recibida en el constructor
       },
       multiSelectionEnabled: true,
     );
@@ -185,7 +240,14 @@ class _GenderSelector extends StatelessWidget {
     Icons.boy,
   ];
 
-  const _GenderSelector({required this.selectedGender});
+  //funcion para que al cambiar el genero se quede reflejado resaltando el boton, le pasmos la informacion del FormProvider
+  final void Function(String selectedGender) onGenderChanged;
+
+  //Constructor
+  const _GenderSelector({
+    required this.selectedGender,
+    required this.onGenderChanged
+  });
 
 
   @override
@@ -204,7 +266,7 @@ class _GenderSelector extends StatelessWidget {
         }).toList(), 
         selected: { selectedGender },
         onSelectionChanged: (newSelection) {
-          print(newSelection);
+          onGenderChanged(newSelection.first);
         },
       ),
     );
