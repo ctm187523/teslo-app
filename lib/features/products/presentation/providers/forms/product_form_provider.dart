@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 import 'package:teslo_shop/features/products/domain/domain.dart';
+import 'package:teslo_shop/features/products/presentation/providers/providers.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
 import '../../../../../config/constants/environment.dart';
@@ -68,7 +69,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
 
   //le hemos puesto productLike al nombre del Map que tiene como atributo la funcion, porque es como un producto
   //pero no exactamente un producto ya que es state ProductFormState tiene atributos propiedades diferentes al producto
-  final void Function( Map<String, dynamic> productLike)? onSubmitCallback; //funcion para validar el formulario y mandar al backend la infromacion
+  final Future<Product> Function( Map<String, dynamic> productLike)? onSubmitCallback; //funcion para validar el formulario y mandar al backend la infromacion
 
   //constructor
   ProductFormNotifier({
@@ -95,8 +96,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
 
     if ( !state.isFormValid ) return false;
 
-    //TODO: regresar 
-    //if( onSubmitCallback == null ) return false;
+    if( onSubmitCallback == null ) return false; //si no recibe la funcion salimos
 
     //productLike es el objeto que tiene que lucir como pide el backend
     final productLike = {
@@ -114,7 +114,15 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
         ).toList()
     };
 
-    return true;
+    //mandamos el producto a la funcion recibida abajo en el productFormProvider
+    //para que el producto se cree o se actualize dependiendo si tenemos un id  o no
+    try {
+      
+      await onSubmitCallback!( productLike);
+      return true;
+    } catch (e) {
+        return false;
+    }
   }
 
   //al hacer submit tocamos cada uno de los campos con validaciones, forzamos que haya sido manipulado(ensuciamos)
@@ -221,11 +229,13 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
 final productFormProvider = StateNotifierProvider.autoDispose.family<ProductFormNotifier, ProductFormState, Product>(
   (ref, product){
 
-    //TODO: createUpdateCallback
+    //usamos el provider productsRepositoryProvider para acceder al metdodo createUpdateProduct
+    //que es el metodo que nos permite crear o actualizar productos dependiendo si recibe un id o no
+    final createUpdateCallback = ref.watch( productsRepositoryProvider).createUpdateProduct;
 
     return ProductFormNotifier(
-      product: product
-      //TODO: onSubmitCallback: createUpdateCallback
+      product: product,
+      onSubmitCallback: createUpdateCallback,
     );
   }
   

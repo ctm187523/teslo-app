@@ -26,10 +26,39 @@ class ProductsDatasourceImpl extends ProductsDataSource {
   );
 
 
+  //metodo para crear o actualizar producto
+  //sabemos si estamos creando o actualizando un producto si tenemos o no el id
   @override
-  Future<Product> createUpdateProduct(Map<String, dynamic> productLike) {
-    // TODO: implement createUpdateProduct
-    throw UnimplementedError();
+  Future<Product> createUpdateProduct(Map<String, dynamic> productLike) async{
+    
+    try {
+
+      final String? productId = productLike['id']; //el productId es opcional si viene actualizamos sino creamos
+      final String method = (productId == null) ? 'POST' : 'PATCH'; //si no viene creamos(POST) si no actualizamos(PATCH),  PUT es reemplazo completo de la entidad, PATCH sólo de una parte
+
+      //para hacer el PATCH en la URL ponemos el id para hacer un POST no
+      final String url = (productId == null) ? '/post':'/products/$productId';
+      
+      //una vez sabemos si es POST o PATCH borramos el id ya que solo se utiliza para saber que metodo usar
+      productLike.remove('id');
+
+      //hacemos la peticion, enviamos la url, la data(el productLike) y en las Options el metodo(post o patch)
+      final response = await dio.request(
+        url,
+        data: productLike,
+        options: Options(
+          method: method
+        )
+      );
+
+      //trasnformamos la respuesta en JSON a un objeto de la clase Product, usamos ProductMapper creado anteriormente
+      final product = ProductMapper.jsonToEntity(response.data);
+
+      return product; //regresamos el nuevo producto creado o actualizado
+
+    } catch (e) {
+      throw Exception();
+    }
   }
 
   @override
