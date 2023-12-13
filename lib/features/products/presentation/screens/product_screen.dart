@@ -81,7 +81,12 @@ class _ProductView extends ConsumerWidget {
     
           const SizedBox( height: 10 ),
           //usamos la instancia del provider productFormProvider para acceder al valor ponemos productForm.title.value porque es una instancia al input
-          Center(child: Text( productForm.title.value, style: textStyles.titleSmall )),
+          Center(
+            child: Text( productForm.title.value, 
+            style: textStyles.titleSmall ,
+            textAlign: TextAlign.center,
+            )
+          ),
           const SizedBox( height: 10 ),
           _ProductInformation( product: product ),
           

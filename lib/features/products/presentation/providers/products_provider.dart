@@ -51,6 +51,43 @@ class ProductsNotifier extends StateNotifier<ProductsState>{
     loadNextPage();
   }
 
+  //metodo para que si se actualiza o se crea un producto al volcer a la pantalla
+  //de Products quede actualizada, retorna un booleano en el caso de que lo haga o no
+  Future<bool> createOrUpdateProduct( Map<String, dynamic> productLike ) async {
+
+    try {
+      
+      //llamamos al metodo createUpdateProduct de la  instancia productsRepository 
+      //obtenida en el constructor para obtener un producto
+      final product = await productsRepository.createUpdateProduct(productLike);
+
+      //vemos si el producto que estoy editando esta en la pantalla Products, si pulsamos NuevoProducto lo creariamos
+      //si pulsamos sobre uno de los productos de la pantalla Products lo editamos
+      //verificamos si el product obtenido arriba esta en la lista de productos que ya tenemos, ver arriba propiedades del ProducState
+      final isProducInList = state.products.any((element) => element.id == product.id);
+
+      //si no exite lo añadimos a la lista de productos,usando el spread ...
+      if ( !isProducInList) {
+        state = state.copyWith(
+          products: [...state.products, product]
+        );
+        return true; 
+      }
+
+      //si existe lo actualizamos, recorremos los elementos y el que coincida con el id del product obtenido
+      //lo actualizamos usando el product obtenido actualizado, si no coincide el id regresamos el mismo elemento que ya tenemos
+      state = state.copyWith(
+        products: state.products.map(
+          (element) => (element.id == product.id) ? product : element
+        ).toList()
+      );
+      return true;
+
+    } catch (e) {
+      return false; //retornamos que ha tenido exito la modificacion del  producto
+    }
+  }
+
   //metodo para cargar nuevas paginas de productos
   Future loadNextPage() async {
 

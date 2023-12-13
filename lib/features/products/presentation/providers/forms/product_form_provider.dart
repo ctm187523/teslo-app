@@ -3,7 +3,6 @@ import 'package:formz/formz.dart';
 import 'package:teslo_shop/features/products/domain/domain.dart';
 import 'package:teslo_shop/features/products/presentation/providers/providers.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
-
 import '../../../../../config/constants/environment.dart';
 
 
@@ -69,7 +68,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
 
   //le hemos puesto productLike al nombre del Map que tiene como atributo la funcion, porque es como un producto
   //pero no exactamente un producto ya que es state ProductFormState tiene atributos propiedades diferentes al producto
-  final Future<Product> Function( Map<String, dynamic> productLike)? onSubmitCallback; //funcion para validar el formulario y mandar al backend la infromacion
+  final Future<bool> Function( Map<String, dynamic> productLike)? onSubmitCallback; //funcion para validar el formulario y mandar al backend la infromacion
 
   //constructor
   ProductFormNotifier({
@@ -118,8 +117,8 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     //para que el producto se cree o se actualize dependiendo si tenemos un id  o no
     try {
       
-      await onSubmitCallback!( productLike);
-      return true;
+      return await onSubmitCallback!( productLike);
+
     } catch (e) {
         return false;
     }
@@ -229,9 +228,8 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
 final productFormProvider = StateNotifierProvider.autoDispose.family<ProductFormNotifier, ProductFormState, Product>(
   (ref, product){
 
-    //usamos el provider productsRepositoryProvider para acceder al metdodo createUpdateProduct
-    //que es el metodo que nos permite crear o actualizar productos dependiendo si recibe un id o no
-    final createUpdateCallback = ref.watch( productsRepositoryProvider).createUpdateProduct;
+    //usamos el provider productsProvider para acceder al metdodo createOrUpdateProduct
+    final createUpdateCallback = ref.watch( productsProvider.notifier).createOrUpdateProduct;
 
     return ProductFormNotifier(
       product: product,
