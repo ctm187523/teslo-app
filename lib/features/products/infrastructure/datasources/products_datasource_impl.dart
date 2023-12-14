@@ -34,10 +34,10 @@ class ProductsDatasourceImpl extends ProductsDataSource {
     try {
 
       final String? productId = productLike['id']; //el productId es opcional si viene actualizamos sino creamos
-      final String method = (productId == null) ? 'POST' : 'PATCH'; //si no viene creamos(POST) si no actualizamos(PATCH),  PUT es reemplazo completo de la entidad, PATCH sólo de una parte
+      final String method = (productId == null) ? 'POST' : 'PATCH'; //si no viene(queremos crear un nuevo producto ver product_form_provider linea 102) creamos(POST) si no actualizamos(PATCH),  PUT es reemplazo completo de la entidad, PATCH sólo de una parte
 
       //para hacer el PATCH en la URL ponemos el id para hacer un POST no
-      final String url = (productId == null) ? '/post':'/products/$productId';
+      final String url = (productId == null) ? '/products':'/products/$productId';
       
       //una vez sabemos si es POST o PATCH borramos el id ya que solo se utiliza para saber que metodo usar
       productLike.remove('id');

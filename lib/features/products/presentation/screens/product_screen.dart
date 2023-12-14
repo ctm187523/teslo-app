@@ -17,38 +17,62 @@ class ProductScreen extends ConsumerWidget {
   //constructor
   const ProductScreen({super.key, required this.productId});
 
+  //metodo para mostrar un snackbar con un mensaje al pulsar el boton(FloatingActionButton) de modificar/crear un producto
+  void showSnackbar( BuildContext context){
+    
+    ScaffoldMessenger.of(context).clearSnackBars(); //usamos clearSnackBars por si volvemos a pulsar el boton que muestre la nueva y oculte la vieja
+
+    //mostramos el Sanckbar 
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Producto actualizado'))
+     );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     
     final productState = ref.watch( productProvider(productId));
     
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Editar Producto'),
-        actions: [
-          IconButton(onPressed: () {
-           
+    //usamos el Widget GestureDetector y con su metodo onTap hacemos que cuando
+    //el teclado aparezca y luego si perdemos el foco del teclado(hacemos click a fuera) desaparezca el teclado
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Editar Producto'),
+          actions: [
+            IconButton(onPressed: () {
+             
+            },
+             icon: const Icon( Icons.camera_alt_outlined))
+          ],    
+        ),  
+    
+        //si ProductState es isLoading mostramos el loader en caso contrario mostramos el producto
+        body: productState.isLoading
+          ? const FullScreenLoader() //usamos FullScreenLoader creado en widgets
+          : _ProductView(product: productState.product!,),
+        
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+    
+             if( productState.product == null) return; //si al validar no tenemos un producto salimos
+             
+             //llamamos al provider formProvider para que llame a la funcion onFormSubmit
+             //como onFormSubmit regresa un Future de tipo booleano con .then recogemos el value(el valor booleano)
+             //que usamos para hacer la condicion de mostrar o no el SnackBar diciendo producto actualizado
+             //para usar el SnackBar llamamos a la funcion creada arriba showSnackBar
+             ref.read(
+                productFormProvider(productState.product!).notifier
+              ).onFormSubmit()
+               .then((value) { //si el balor boolean es false salimos en caso contrario mostramos el snackBar gracias a la funcion creada arriba showSnackBar
+                if (!value) return ;
+                showSnackbar(context);
+              });
           },
-           icon: const Icon( Icons.camera_alt_outlined))
-        ],    
-      ),  
-
-      //si ProductState es isLoading mostramos el loader en caso contrario mostramos el producto
-      body: productState.isLoading
-        ? const FullScreenLoader() //usamos FullScreenLoader creado en widgets
-        : _ProductView(product: productState.product!,),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-
-           if( productState.product == null) return; //si al validar no tenemos un producto salimos
-           
-           //llamamos al provider formProvider para que llame a la funcion onFormSubmit
-           ref.read(
-              productFormProvider(productState.product!).notifier
-            ).onFormSubmit();
-        },
-        child: const Icon( Icons.save_as_outlined),
-      )
+          child: const Icon( Icons.save_as_outlined ),
+        ),
+      ),
     );
   }
 }
@@ -227,6 +251,7 @@ class _SizeSelector extends StatelessWidget {
       }).toList(), 
       selected: Set.from( selectedSizes ),
       onSelectionChanged: (newSelection) {
+        FocusScope.of(context).unfocus(); //al tomar del Foco ocultamos el teclado
         //usamos List.from porque newSlection no es un listado de Stirngs es un set por tanto lo convertimos a un listado de String
         //Un set es una colección no ordenada de elementos únicos.(ver guia de atajos Dart)
         onSizesChanged( List.from(newSelection)); //usamos la funcion recibida en el constructor
@@ -271,6 +296,7 @@ class _GenderSelector extends StatelessWidget {
         }).toList(), 
         selected: { selectedGender },
         onSelectionChanged: (newSelection) {
+          FocusScope.of(context).unfocus(); //al salir tomar el Foco ocultamos el teclado
           onGenderChanged(newSelection.first);
         },
       ),

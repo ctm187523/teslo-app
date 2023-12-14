@@ -99,7 +99,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
 
     //productLike es el objeto que tiene que lucir como pide el backend
     final productLike = {
-      'id' : state.id,
+      'id' : (state.id == 'new' ) ? null : state.id, //si recibimos en el id new quiere decir que queremos crear un nuevo producto entonce ponemos el id como null
       'title' : state.title.value,
       'price': state.price.value,
       'description' : state.description,
@@ -236,5 +236,4 @@ final productFormProvider = StateNotifierProvider.autoDispose.family<ProductForm
       onSubmitCallback: createUpdateCallback,
     );
   }
-  
 );

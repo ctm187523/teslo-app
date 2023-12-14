@@ -35,7 +35,11 @@ class ProductsScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         label: const Text('Nuevo producto'),
         icon: const Icon( Icons.add ),
-        onPressed: () {},
+        onPressed: () {
+          //usamos app_router al pulsar el boton, donde en lugar de mandar un id
+          //mandamos new para crear un nuevo producto
+          context.push('/product/new');
+        },
       ),
     );
   }

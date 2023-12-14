@@ -51,10 +51,37 @@ class ProductState {
       loadProduct(); //llamamos en el constructor a la funcion de abajo 
     }
 
+    //metodo para crear un nuevo producto
+    Product newEmptyProduct(){
+
+      return Product(
+        id: 'new',
+        title: '',
+        price: 0,
+        description: '',
+        slug: '',
+        stock: 0,
+        sizes: [], 
+        gender: 'men',
+        tags: [], 
+        images: [],
+      );
+    }
     //funcion para cargar un producto mediante el id del producto
     Future<void> loadProduct() async {
 
         try {
+
+          //si el state.id es 'new' quiere decir que queremos crear un nuevo producto
+          //llamamos a la funcion de arriba para crear un Producto vacio y isLoading lo ponemos en false
+          if ( state.id == 'new'){
+
+            state = state.copyWidth(
+              isLoading: false,
+              product: newEmptyProduct(),
+            );
+            return;
+          }
           final product = await productsRepository.getProductById(state.id);
 
           //modificamos el state del ProductState cada vez que cerremos la pantalla
