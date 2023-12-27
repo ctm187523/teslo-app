@@ -26,6 +26,52 @@ class ProductsDatasourceImpl extends ProductsDataSource {
   );
 
 
+  //metodo para tratar cada una de las imagenes, comprobamos si tiene /
+  //es llamado por el metodo creado abajo _uploadPhotos
+  Future<String> _uploadFile ( String path ) async {
+
+    try {
+      
+      //si tiene slash cortamos el path y solo nos quedamos con la ultima parte que es la que contiene el nombre de la imagen
+      //ya en el backend, el backend le pondra un id unico
+      final fileName = path.split('/').last;
+
+      //el objeto data contendra la imagen, ya con el formato correcto
+      final FormData data = FormData.fromMap({
+        'file': MultipartFile.fromFileSync(path, filename: fileName) //la llave que pide el backend el file,mandamos el path del dispositivo
+      });
+
+      //hacemos una peticion psot al backend con la imagen
+      final response = await dio.post('/files/product', data: data); 
+
+      //devolvemos la imagen recibida con el nuevo path creado en el backend
+      return response.data['image'];
+    } catch (e) {
+      throw Exception();
+    }
+  }
+
+  //metodo para hacer que las imagenes que vienen del dispositvo o tomadas con la camara, tengan
+  //una identificacion de la imagen correcta, ya que si no la tratamos mandariamos al backend
+  //la direccion url de donde se ubica la imagen en el dispositivo ej: cleme/documents/ , debemos
+  //enviar al backend un correcto id sin barras inclinadas /
+  Future<List<String>> _uploadPhotos(List<String> photos ) async {
+    
+    //discriminamos las imagenes que contienen slash /
+    final photosToUpload = photos.where((element) => element.contains('/') ).toList();
+    final photosToIgnore = photos.where((element) => !element.contains('/') ).toList();
+
+    final List<Future<String>> uploadJob = photosToUpload.map(
+      (e) => _uploadFile(e) //llamamos al metodo de arriba
+      ).toList();
+
+    final newImages = await Future.wait(uploadJob);
+
+    return [...photosToIgnore, ...newImages]; //retornamos las imagenes que no habia que modificar y las imagenes que vienen del dispositivo o de tomar una foto modificadas
+  }
+
+
+
   //metodo para crear o actualizar producto
   //sabemos si estamos creando o actualizando un producto si tenemos o no el id
   @override
@@ -41,6 +87,14 @@ class ProductsDatasourceImpl extends ProductsDataSource {
       
       //una vez sabemos si es POST o PATCH borramos el id ya que solo se utiliza para saber que metodo usar
       productLike.remove('id');
+
+      //llamamos ala funcion creada arriba, cuando seleccionamos una imagen del dispositivo
+      //o tomamos una Foto con el dispositivo al querer enviarlas al backend tenemos que tratar el path
+      //de las imagenes ya que si son imagenes del dispositvo o tomadas con la camara si no la trataramos
+      //enviaremos le url de donde se ubican en el dispoitivo
+      productLike['images'] = await _uploadPhotos( productLike['images']);
+      
+      
 
       //hacemos la peticion, enviamos la url, la data(el productLike) y en las Options el metodo(post o patch)
       final response = await dio.request(

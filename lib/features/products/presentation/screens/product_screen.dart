@@ -1,5 +1,7 @@
 
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:teslo_shop/features/products/presentation/providers/product_provider.dart';
@@ -41,8 +43,30 @@ class ProductScreen extends ConsumerWidget {
         appBar: AppBar(
           title: const Text('Editar Producto'),
           actions: [
-            IconButton(onPressed: () {
-             
+
+            //boton icono para seleccionar una imagen del dispositivo usamos la clase creada
+            //CameraGalleryServiceImp()
+            IconButton(onPressed: () async{
+              final photoPath = await CameraGalleryServiceImp().selectPhoto();
+              if ( photoPath == null) return;
+
+              //usamos el provider productFormProvider para añadir la imagen al array del imagenes del state
+              ref.read(productFormProvider(productState.product!).notifier)
+                .updateProductImage(photoPath);
+    
+            },
+             icon: const Icon( Icons.photo_library_outlined)),
+
+            //boton icono para hacer una foto con el dispositivo usamos la clase creada
+            //CameraGalleryServiceImp()
+            IconButton(onPressed: () async{
+              final photoPath = await CameraGalleryServiceImp().takePhoto();
+              if ( photoPath == null) return;
+              
+              //usamos el provider productFormProvider para añadir la imagen al array del imagenes del state
+              ref.read(productFormProvider(productState.product!).notifier)
+                .updateProductImage(photoPath);
+   
             },
              icon: const Icon( Icons.camera_alt_outlined))
           ],    
@@ -312,21 +336,45 @@ class _ImageGallery extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    if ( images.isEmpty ){
+      return ClipRRect(
+        borderRadius: const BorderRadius.all(Radius.circular(20)),
+        child: Image.asset('assets/images/no-image.jpg', fit: BoxFit.cover )
+        ); 
+    }
+
+    
     return PageView(
       scrollDirection: Axis.horizontal,
       controller: PageController(
         viewportFraction: 0.7
       ),
-      children: images.isEmpty
-        ? [ ClipRRect(
+      children: images.map((image){
+
+        //discriminamos las imagenes que tenemos en la base de datos y las que tenemos
+        //en el dispositivo y aun no estan en la base de datos obtenidas de la galeria de
+        //archivos del dispositivo o de haber tomado una foto con el dispositivo, son fotos temporales hasta que no se suban a la base de datos
+        //usamos la calse ImageProvider de Flutter
+        late ImageProvider imageProvider;
+        //si viene de la base de datos, de la nube
+        if( image.startsWith('http')){
+          imageProvider= NetworkImage(image);
+        //si viene del dispositivo usamos la clase FileImage y File de Flutter  
+        }else{
+          imageProvider = FileImage( File(image));
+        }
+        
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: ClipRRect(
             borderRadius: const BorderRadius.all(Radius.circular(20)),
-            child: Image.asset('assets/images/no-image.jpg', fit: BoxFit.cover )) 
-        ]
-        : images.map((e){
-          return ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(20)),
-            child: Image.network(e, fit: BoxFit.cover,),
-          );
+            child: FadeInImage(
+              fit: BoxFit.cover,
+              image: imageProvider,
+              placeholder: const AssetImage('assets/loaders/bottle-loader.gif'),
+            )
+          ),
+        );
       }).toList(),
     );
   }

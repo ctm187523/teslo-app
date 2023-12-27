@@ -138,6 +138,13 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     );
   }
 
+  //método para añadir nuevas imagenes al listado de imagenes(List<String> images)
+  //imagenes tomadas de la galeria o de tomar una foto con la camara del dispositivo
+  void updateProductImage(String path){
+    state = state.coyWidth(
+      images: [...state.images, path] //colocamos la imagen al final para ponerla al principio seria path, ...state.images
+    );
+  }
 
   //METODOS PARA CAMBIAR EL ESTADO CON VALIDACIONES
   void onTitleChanged ( String value) {

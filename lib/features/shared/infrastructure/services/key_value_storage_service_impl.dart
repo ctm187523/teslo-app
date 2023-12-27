@@ -22,7 +22,6 @@ class KeyValueStorageServiceImpl extends KeyValueStorageService {
     final prefs = await  getSharedPrefes();
 
     //discriminamos el tipo de valor generico T que retornamos con un switch
-
     switch (T) {
       case int:
         return prefs.getInt(key) as T?;
