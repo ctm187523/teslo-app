@@ -4,14 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:teslo_shop/features/products/domain/domain.dart';
 import 'products_repository_provider.dart';
 
-// STATE Notifier PROVIDER
+// STATE Notifier PROVIDER, Provider para lista de productos
 class ProductsState {
 
   final bool isLastPage;
   final int limit;
   final int offset;
   final bool isLoading;
-  final List<Product> products; //productos  que mostraremos por pantalla
+  final List<Product> products; //listado de productos que mostraremos por pantalla
 
   //constructor
   ProductsState({
@@ -38,9 +38,12 @@ class ProductsState {
 }
 
 
-//NOTIFIER
+//NOTIFIER, esta clase es llamada abajo del codigo en productsProvider
 class ProductsNotifier extends StateNotifier<ProductsState>{
 
+  //propiedad para obtener los productos
+  //lo usamos mas abajo para obtener el producto por id, pretenece al domain no al infrastructure para hacerlo generico
+  //cuando es llamada esta clase ProductNotifier abajo del codigo en el productProvider se pasa del infrastructure ProductsRepositoryImpl
   final ProductsRepository productsRepository;
   
   //constructor, tan pronto se utilize el ProductsNotifier en cualquier lugar
@@ -51,14 +54,15 @@ class ProductsNotifier extends StateNotifier<ProductsState>{
     loadNextPage();
   }
 
-  //metodo para que si se actualiza o se crea un producto al volcer a la pantalla
+  //metodo para que si se actualiza o se crea un producto al volver a la pantalla
   //de Products quede actualizada, retorna un booleano en el caso de que lo haga o no
+  //esta funcion es llamada en product_form_provider.dart
   Future<bool> createOrUpdateProduct( Map<String, dynamic> productLike ) async {
 
     try {
       
       //llamamos al metodo createUpdateProduct de la  instancia productsRepository 
-      //obtenida en el constructor para obtener un producto
+      //obtenida en el constructor para crear o actualizar producto
       final product = await productsRepository.createUpdateProduct(productLike);
 
       //vemos si el producto que estoy editando esta en la pantalla Products, si pulsamos NuevoProducto lo creariamos
@@ -71,7 +75,7 @@ class ProductsNotifier extends StateNotifier<ProductsState>{
         state = state.copyWith(
           products: [...state.products, product]
         );
-        return true; 
+        return true; //retornamos que ha tenido exito la creación del  producto
       }
 
       //si existe lo actualizamos, recorremos los elementos y el que coincida con el id del product obtenido
@@ -81,10 +85,10 @@ class ProductsNotifier extends StateNotifier<ProductsState>{
           (element) => (element.id == product.id) ? product : element
         ).toList()
       );
-      return true;
+      return true;  //retornamos que ha tenido exito la modificacion del  producto
 
     } catch (e) {
-      return false; //retornamos que ha tenido exito la modificacion del  producto
+      return false; //retornamos que no ha tenido exito la modificacion/creación del  producto
     }
   }
 
@@ -122,7 +126,7 @@ class ProductsNotifier extends StateNotifier<ProductsState>{
 }
 
 
- //PROVIDER
+ //PROVIDER, valor mutable complejo
  final productsProvider = StateNotifierProvider<ProductsNotifier, ProductsState>((ref) {
 
   //usamos una instancia del Provider productsRepositoryProvider creado en este directorio

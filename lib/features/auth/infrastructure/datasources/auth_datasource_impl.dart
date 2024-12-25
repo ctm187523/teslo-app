@@ -17,7 +17,7 @@ class AuthDatasourceImp extends AuthDataSource {
   );
 
 
-  //manejamos el checking del estado del usuario, si tine un token valido
+  //manejamos el checking del estado del usuario, si tiene un token valido
   @override
   Future<User> checkAuthStatus(String token) async{
     

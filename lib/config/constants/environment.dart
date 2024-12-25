@@ -7,7 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Environment {
 
-  //iniciomos el environment codigo sacado de --> https://pub.dev/packages/flutter_dotenv
+  //iniciamos el environment codigo sacado de --> https://pub.dev/packages/flutter_dotenv
   static initEmvironment() async{
     await dotenv.load(fileName: '.env');
   }

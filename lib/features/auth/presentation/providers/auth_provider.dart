@@ -138,7 +138,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logOut( [ String? errorMessage] ) async {
-    //guardamos el token del disco duro usando el storage_service implementado 
+    
     await keyValueStorageService.removeValue('token');
     
     state = state.copyWith(

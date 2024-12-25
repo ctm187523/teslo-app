@@ -6,6 +6,14 @@
 //(NSUserDefaults en iOS y macOS, SharedPreferences en Android, etc.). Los datos pueden persistir en el disco de forma asíncrona,
 // y no hay garantía de que las escrituras persistan en el disco después de regresar, por lo que este complemento no debe usarse para almacenar datos críticos.
 
+/* 
+
+  Shared Preferences es un plugin en Flutter que te permite almacenar de forma sencilla y persistente pequeños 
+  conjuntos de datos clave-valor en dispositivos Android e iOS. Imagina que son como pequeñas notas adhesivas 
+  digitales dentro de tu aplicación.
+
+*/
+
 
 //clase para regir las implementaciones, al ser abstracta, en este caso usaremos shared_preferences
 //pero podriamos usar otras como isar,etc. para mantener datos en el disco duro

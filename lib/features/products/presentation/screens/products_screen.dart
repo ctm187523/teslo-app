@@ -13,6 +13,8 @@ import 'package:teslo_shop/features/shared/shared.dart';
 
 
 class ProductsScreen extends StatelessWidget {
+
+  //constructor
   const ProductsScreen({super.key});
 
   @override
@@ -50,6 +52,8 @@ class ProductsScreen extends StatelessWidget {
 //el infinite scroll, lo ponemos finalmente ConsumerStatefulWidget
 //para usar los providers
 class _ProductsView extends ConsumerStatefulWidget {
+
+  //constructor
   const _ProductsView();
 
   @override
@@ -70,7 +74,7 @@ class _ProductsViewState extends ConsumerState{
     scrollController.addListener(() {
 
       //si no hay mas paginas que cargar salimos, ver propiedades del ProductsState del archivo products_provider
-      //LO COMENTAMOS PORQUE YA LO VALIDAMOS EN LA LINEA 58 del archivo products_provider
+      //LO COMENTAMOS PORQUE YA LO VALIDAMOS EN el archivo products_provider
       //if( ref.read(productsProvider).isLastPage == true ) return;
 
       //si isLastPage es false cargamos la siguiente pagina, ponemos la condicion de que si

@@ -6,6 +6,7 @@ import 'package:teslo_shop/features/products/infrastructure/datasources/products
 import '../../infrastructure/repositories/products_repository_impl.dart';
 
 //tipo de informacion <ProductRepository>
+//creamos un provider de solo lectura es inmutable proporciona a los demas providers la informacion  cv
 final  productsRepositoryProvider = Provider<ProductsRepository>((ref) {
 
   //para acceder al token que pide por parametro ProductsDatasourceImp,implementado abajo
@@ -15,7 +16,7 @@ final  productsRepositoryProvider = Provider<ProductsRepository>((ref) {
   final accessToken = ref.watch( authProvider).user?.token ?? '';
   
   final productsRepository = ProductsRepositoryImpl(
-    ProductsDatasourceImpl(accesToken: accessToken) //usamos la variable accesToken creada arriba
+     ProductsDatasourceImpl(accesToken: accessToken) //usamos la variable accesToken creada arriba
    );
 
   return productsRepository;

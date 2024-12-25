@@ -68,7 +68,14 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
 
   //le hemos puesto productLike al nombre del Map que tiene como atributo la funcion, porque es como un producto
   //pero no exactamente un producto ya que es state ProductFormState tiene atributos propiedades diferentes al producto
-  final Future<bool> Function( Map<String, dynamic> productLike)? onSubmitCallback; //funcion para validar el formulario y mandar al backend la infromacion
+  final Future<bool> Function( Map<String, dynamic> productLike)? onSubmitCallback; //funcion para validar el formulario y mandar al backend la información
+
+  /*
+     La razón principal para marcar un objeto como "sucio"(dirty) en Flutter es desencadenar una reconstrucción del widget.
+      Cuando un widget se marca como sucio, Flutter se da cuenta de que su representación en pantalla necesita ser 
+      actualizada para reflejar los nuevos cambios. Esto garantiza que la interfaz de usuario siempre esté sincronizada 
+      con el estado de la aplicación.
+   */
 
   //constructor
   ProductFormNotifier({
@@ -113,7 +120,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
         ).toList()
     };
 
-    //mandamos el producto a la funcion recibida abajo en el productFormProvider
+    //mandamos el producto a la funcion recibida por parámetro
     //para que el producto se cree o se actualize dependiendo si tenemos un id  o no
     try {
       
@@ -124,10 +131,22 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     }
   }
 
+  /*
+    -----------------------    FORMZ   ---------------------------------
+    Formz es un paquete de Dart diseñado específicamente para simplificar la gestión y validación de formularios en aplicaciones Flutter.
+    Proporciona una forma estructurada y eficiente de representar y manejar el estado de los campos de un formulario, 
+    así como de implementar reglas de validación personalizadas.
+
+    ¿Por qué usar Formz?
+    Simplificación: Formz abstrae la complejidad de gestionar el estado de los campos de un formulario, las reglas de validación y la visualización de errores.
+    Validación declarativa: Permite definir reglas de validación de forma concisa y legible, utilizando una sintaxis similar a las expresiones regulares.
+    Estado de los campos: Cada campo tiene su propio estado (válido, inválido, puro, sucio), lo que facilita el manejo de errores y la actualización de la interfaz de usuario.
+    Extensibilidad: Es altamente personalizable y permite crear validadores personalizados para adaptarse a diferentes tipos de campos y requisitos.
+    validamos los inputs de lib/features/shared/infrastructure/inputs
+   */
+
   //al hacer submit tocamos cada uno de los campos con validaciones, forzamos que haya sido manipulado(ensuciamos)
   void _touchedEverything(){
-
-
     state = state.coyWidth(
       isFormValid: Formz.validate([
         Title.dirty(state.title.value),
@@ -151,7 +170,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     
     state = state.coyWidth(
       title: Title.dirty(value),
-      //validamos los inputs de lib/features/shared/infrastructure/inputs
+      //validamos los inputs de lib/features/shared/infrastructure/inputs, ver arriba en los comentarios de Formz
       isFormValid: Formz.validate([
         Title.dirty(value),
         Slug.dirty(state.slug.value),
@@ -165,7 +184,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     
     state = state.coyWidth(
       slug: Slug.dirty(value),
-      //validamos los inputs de lib/features/shared/infrastructure/inputs
+      //validamos los inputs de lib/features/shared/infrastructure/inputs, ver arriba en los comentarios de Formz
       isFormValid: Formz.validate([
         Title.dirty(state.title.value),
         Slug.dirty(value),
@@ -179,7 +198,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     
     state = state.coyWidth(
       price: Price.dirty(value),
-      //validamos los inputs de lib/features/shared/infrastructure/inputs
+      //validamos los inputs de lib/features/shared/infrastructure/inputs, ver arriba en los comentarios de Formz
       isFormValid: Formz.validate([
         Title.dirty(state.title.value),
         Slug.dirty(state.slug.value),
@@ -193,7 +212,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     
     state = state.coyWidth(
       inStock: Stock.dirty(value),
-      //validamos los inputs de lib/features/shared/infrastructure/inputs
+      //validamos los inputs de lib/features/shared/infrastructure/inputs, ver arriba en los comentarios de Formz
       isFormValid: Formz.validate([
         Title.dirty(state.title.value),
         Slug.dirty(state.slug.value),

@@ -5,7 +5,7 @@ import 'app_router_notifier.dart';
 import 'package:teslo_shop/features/auth/auth.dart';
 import 'package:teslo_shop/features/products/products.dart';
 
-//envolvemos el goRouter en un Provider, para la comprovacion de si el usuario esta autenticado
+//envolvemos el goRouter en un Provider, para la comprobacion de si el usuario esta autenticado
 //usamos abajo del codigo la propiedad redirect para la autenticacion
 final goRouterProvider = Provider((ref) {
 
@@ -49,7 +49,7 @@ final goRouterProvider = Provider((ref) {
       ),
     ],
     
-    //usamos el redirect para comprovar su el usuario esta autenticado
+    //usamos el redirect para comprovar si el usuario esta autenticado
     //usamos como parametro el context y el state donde tenemos el estado del router
     redirect: (context, state ){
 

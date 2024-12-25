@@ -17,7 +17,7 @@ final goRouterNotifierProvider = Provider((ref) {
 //los primeros providers
 class GoRouterNotifier extends ChangeNotifier {
 
-  //usamosuna instancia de la clase AuthNotifier para manejar el estado(autenticado, no autenticado, etc)
+  //usamos una instancia de la clase AuthNotifier para manejar el estado(autenticado, no autenticado, etc)
   final AuthNotifier _authNotifier;
 
   //constructor
@@ -29,10 +29,11 @@ class GoRouterNotifier extends ChangeNotifier {
      });
    }
 
+  //instancia de la clase AuthStatus en features/auth/presentations/providers/AuthProvider, 
+  //donde tenemos los 3 estados(checking, authenticated, notAuthenticated)
   AuthStatus _authStatus  = AuthStatus.checking; //cheking por defecto
 
  
-
   //obtenemos el estado
   AuthStatus get authStatus => _authStatus;
 

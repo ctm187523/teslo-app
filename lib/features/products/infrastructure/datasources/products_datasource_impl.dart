@@ -74,6 +74,9 @@ class ProductsDatasourceImpl extends ProductsDataSource {
 
   //metodo para crear o actualizar producto
   //sabemos si estamos creando o actualizando un producto si tenemos o no el id
+  //recibimos un map donde el String es la propiedad por ejemplo "id" o "title" y el dynamic puede ser cualquier tipo de dato
+  //que es el valor de la propiedad ejemplo "price" = 0.0, "title" = "camiseta", uno el valor es un double y el otro es un string por eso
+  //lo ponemos de tipo dynamic
   @override
   Future<Product> createUpdateProduct(Map<String, dynamic> productLike) async{
     
@@ -82,13 +85,13 @@ class ProductsDatasourceImpl extends ProductsDataSource {
       final String? productId = productLike['id']; //el productId es opcional si viene actualizamos sino creamos
       final String method = (productId == null) ? 'POST' : 'PATCH'; //si no viene(queremos crear un nuevo producto ver product_form_provider linea 102) creamos(POST) si no actualizamos(PATCH),  PUT es reemplazo completo de la entidad, PATCH sólo de una parte
 
-      //para hacer el PATCH en la URL ponemos el id para hacer un POST no
+      //para hacer el PATCH en la URL ponemos el id para hacer un POST no lo ponemos
       final String url = (productId == null) ? '/products':'/products/$productId';
       
       //una vez sabemos si es POST o PATCH borramos el id ya que solo se utiliza para saber que metodo usar
       productLike.remove('id');
 
-      //llamamos ala funcion creada arriba, cuando seleccionamos una imagen del dispositivo
+      //llamamos a la funcion creada arriba, cuando seleccionamos una imagen del dispositivo
       //o tomamos una Foto con el dispositivo al querer enviarlas al backend tenemos que tratar el path
       //de las imagenes ya que si son imagenes del dispositvo o tomadas con la camara si no la trataramos
       //enviaremos le url de donde se ubican en el dispoitivo
